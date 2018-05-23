@@ -26,6 +26,22 @@ else:
     
     for f in all_flux:
         f /= np.median(f)
-        
-    plt.plot(np.concatenate(all_time), np.concatenate(all_flux), ".")
+
+    all_time_concat = np.concatenate(all_time)
+    all_flux_concat = np.concatenate(all_flux)
+    q3max = all_flux[3].max()
+    
+    plt.figure(1)
+    plt.subplot(211)    
+    plt.scatter(all_time_concat, all_flux_concat, c=[(value if value<q3max else 1.0) for value in all_flux_concat], s=0.5, cmap='plasma')
+    plt.title('Entire Kepler Mission Data for KEP_ID=11442793')
+    plt.xlabel('Time(days)')
+    plt.ylabel('Brightness')
+    plt.subplot(212)
+    plt.scatter(all_time[3],all_flux[3],c=all_flux[3], s=2, cmap='plasma')
+    plt.title('3$^{rd}$ quarter')
+    plt.ylim(all_flux[3].min(),q3max)
+    plt.xlabel('Time(days)')
+    plt.ylabel('Brightness')
+    plt.figure(1).tight_layout()
     plt.show()
