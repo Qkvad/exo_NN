@@ -1,5 +1,9 @@
 # 90GB of data
-data/
+data/kepler/
+
+# generated
+.astropy/
+.keras/
 
 # PYTHON
 ########
