@@ -195,6 +195,13 @@ A convolutional neural network (CNN) can be viewed as a deep neural network with
 
 In previous figure, we have a CNN that is used for classifying 2D data (generally, images are third order tensors, but we can assume image to be grayscale). Our data is not two-dimensional so we will be using 1D convolution with ReLu function as activation and maximum pooling, each of which will be explained in the following subsections, specifically as they were in out project.
 
+The full graph of our convolutional neural network viewed in TensorBoard can be seen in figure~\ref{fig:exo_tfgraph}.
+\begin{figure}[H]
+\includegraphics[width=0.5\textwidth]{exo_nn_tfgraph}
+\caption{TensorFlow graph of our exo\_nn convolutional neural network}
+\label{fig:exo_tfgraph}
+\end{figure}
+
 \subsection{Convolutional Layer}
 A convolutional layer consists of neurons that are not fully connected, that is --- each neurons in this layer is connect to just the small portion of the input. The convolution layer’s parameters consist of a set of learnable filters. During the forward pass, we slide (more precisely, convolve) each filter across the input and compute dot products between the entries of the filter and the input at any position. As we slide the filter over the the input, we will produce a $1$-dimensional activation map that gives the responses of that filter at every position. Furthermore, we can stack multiple convolutional layers before pooling their output. One thing to notice here is that there are two options in doing the described procedure; with padding the input and without padding it, meaning that with padding we add zero values to the left or right of the input so the convolution step on the first/last few inputs in the input array will be valid (there will be enough inputs on each side to do the dot product). We use padding, thus are able to obtain same-size output after the convolution. The convolutional kernel size we use is $5$.
 
@@ -223,7 +230,9 @@ As we can see in figure~\ref{fig:sigmoid-pool2}, almost no features are detected
 Pooling is a method of downsizing the input data, but keeping the structure. It is used to abstract features obtained by convolutional layer into more complex features that then go further into neural network. We used max pooling with size $7$ and stride $2$ which lead to reducing the output size of the first convolutional block from $201$ to $98$ and output size from the second convolutional layer from $98$ to $46$. Max pooling is done almost like convolution, but we do not calculate the dot-product of "pool filter" of length $7$ with the part of the input of length $7$. Instead, we just take maximum value of $7$ input values we are looking at, slide $2$ steps, collect a maximum value again and so on.
 
 \subsection{Fully Connected}
-After our second convolutional block, we ended up with $32$ values of length $46$ which are now flattened to form a $1472$ inputs for network of $2$ fully connected layers with $1024$ neurons each. We also use ReLu as activation for those neurons.
+After our second convolutional block, we ended up with $32$ values of length $46$ which are now flattened to form a $1472$ inputs for a network of $2$ fully connected layers with $1024$ neurons each. As activation function, we set ReLu.
+
+We also tried with $4$ layers with $512$ neurons in a layer (and many other combinations) which produced similar or worse accuracy.
 
 \subsection{Sigmoid Output}
 Lastly, the computations of fully connected layers are sumarized in a single output value representing the probability that a TCE is a planet candidate. Therefore, we use a sigmoid function as activation for this last neuron.
@@ -234,7 +243,7 @@ Lastly, the computations of fully connected layers are sumarized in a single out
 We train a convolutional neural network model on a randomly constructed set of data consisting of $1058$ planet candidates, $471$ astrophysical false positives and $734$ non-transiting phenomena, summing to $2263$ data examples. For this model (convolutional neural network described above), astrophysical false positives and non-transiting phenomena are both mapped to label $0$ and planet candidates are labeled $1$. 
 
 \subsection{Parameters}
-We shuffle the data and partition it into a training set consisting of $1810$ examples, a validation set of $226$ examples and a test set of $227$ examples. Training is done with batch size of $16$, in two main parts; first we train for $6000$ steps with learning rate $10^{-5}$, and then we try to fine tune the accuracy with learning rate $10^{-6}$ for another $1000$ steps. Optimization in both parts is done with Adam optimizer.
+We shuffle the data and partition it into a training set consisting of $1810$ examples, a validation set of $226$ examples and a test set of $227$ examples. Training is done with batch size of $16$, in two main parts; first we train for $3000$ steps with learning rate $10^{-5}$, and then we try to fine tune the accuracy with learning rate $10^{-6}$ for another $1000$ steps. Optimization in both parts is done with Adam optimizer.
 
 \subsection{Progress}
 The training process for parameters described above can be most easily viewed through TensorBoard interface for visualizing computation graph and its execution. 
@@ -244,14 +253,14 @@ The training process for parameters described above can be most easily viewed th
 \label{fig:accuracy}
 \end{figure}
 
-The accuracy starts stagnating at around $0.9735$ and it seems like we can not get rid of some of the false predictions. View of the values of confusion matrix during training steps can be seen in figure~\ref{fig:confmat}.
+The accuracy starts stagnating at around $0.9735$ and it seems like we can not get rid of some of the false predictions. View of the values of the confusion matrix during training steps and test can be seen in figure~\ref{fig:confmat}.
 \begin{figure}[H]
 \includegraphics[width=0.5\textwidth]{train-test_cm}
 \caption{Confussion matrix values during training and testing}
 \label{fig:confmat}
 \end{figure}
 
-To conclude, after $7000$ steps we obtained an accuracy of $0.9734513$ with $220$ correctly classified examples in the validation set ($6$ wrongly; $2$ false negatives and $4$ false positives).
+To conclude, after $7000$ steps we obtained an accuracy of $0.9734513$ with $220$ correctly classified examples in the validation set ($6$ wrongly; $2$ false negatives and $4$ false positives). Total training time was about $16$ minutes and $20$ seconds, on a very slow machine.
 
 \subsection{Testing}
 Testing results can also be seen in figures ~\ref{fig:accuracy} and ~\ref{fig:confmat} and are represented with a red dot. Explicitly, we obtained a $0.9295154$ accuracy on the training set with $211$ correctly classified examples ($16$ wrongly; $4$ false negatives and $12$ false positives).
@@ -261,13 +270,13 @@ It is expected that there are more false positives because they are tricky to fi
 
 %----------------------------------------------
 \section{Results}
-In this last section, we present some of the most interesting results we encountered during our journey of training and testing our exoplanet classifier/finder.
-
-We are proud to say that our model outperformed the initial creator's of astronet model at classifying the planet they discovered. While their model was "just" $0.9480018$ confident that it is a planet, our predicts it with certainty of $0,96??$. However, we are aware that this is most probably due to our limited training set, but we cannot be sure until we, hopefully soon, get our models going on a more powerful machine.
+In this last section, we present some of the most interesting results we encountered during our journey of training and testing our exoplanet classifier.
 
 \subsection{The weirdest}
 
 \subsection{The cleanest}
+
+\subsection{The unknowns}
 
 
 %----------------------------------------------------------------------------------------
