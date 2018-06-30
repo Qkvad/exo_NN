@@ -206,13 +206,6 @@ def main(_):
     assert len(predictions) == 1
     print("Prediction:", predictions[0])
 
-  def_graph = tf.get_default_graph()
-  print(def_graph)
-  #cnn_input = def_graph.get_tensor_by_name("local_view_hidden/cnn_input:0")
-  #print(cnn_input)
-  #with tf.Session() as sess:
-  #  print(sess.run(cnn_input))
-
 
 if __name__ == "__main__":
   tf.logging.set_verbosity(tf.logging.INFO)

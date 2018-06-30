@@ -52,6 +52,7 @@ import sys
 
 from astronet.astro_model import astro_model
 
+import numpy as np
 import matplotlib.pyplot as plt
 
 class AstroCNNModel(astro_model.AstroModel):
@@ -93,18 +94,67 @@ class AstroCNNModel(astro_model.AstroModel):
       on the input size, kernel size, number of filters, number of layers,
       convolution padding type and pooling.
     """
-    with tf.variable_scope(scope):
+    def store_inputs(x):
+      print('the input shape is:', x.shape)
+      #print('  values:', x[0,:,0])
+      np.save('/tmp/input', x[0,:,0])
+      return x
+
+    def store_conv_block1_output(x):
+      layer_num = 1 if x.shape[1]==201 else 2
+      print('the conv{}_block1 output shape is: {}'.format(layer_num, x.shape))
+      #print('  values:', x[0,:,:])
+      if layer_num==1:
+        np.save('/tmp/convl1b1', x[0,:,:])
+      else:
+        np.save('/tmp/convl2b1', x[0,:,:])
+      return x
+
+    def store_conv_block2_output(x):
+      layer_num = 1 if x.shape[1]==201 else 2
+      print('the conv{}_block2 output shape is: {}'.format(layer_num, x.shape))
+      #print('  values:', x[0,:,:])
+      if layer_num==1:
+        np.save('/tmp/convl1b2', x[0,:,:])
+      else:
+        np.save('/tmp/convl2b2', x[0,:,:])
+      return x
+
+    def store_pooling_output(x):
+      block_num = 1 if x.shape[1]==98 else 2
+      print('the pooling{} output shape is: {}'.format(block_num, x.shape))
+      #print('  values:', x[0,:,:])
+      if block_num==1:
+        np.save('/tmp/pool1', x[0,:,:])
+      else:
+        np.save('/tmp/pool2', x[0,:,:])
+      return x
+
+    def store_flattened_output(x):
+      block_num = 1 if x.shape[1]==98*16 else 2
+      print('the flattened{} output shape is: {}'.format(block_num, x.shape))
+      #print('  values:', x[0,:,:])
+      if block_num==1:
+        np.save('/tmp/flat1', x[0,:])
+      else:
+        np.save('/tmp/flat2', x[0,:])
+      return x
+
+    with tf.variable_scope(scope, reuse=tf.AUTO_REUSE):
       net = tf.expand_dims(inputs, -1)  # [batch, length, channels]
-      net = tf.identity(net, name="cnn_input")
-      print('\nCNN input: {}'.format(net))
-      net = tf.Print(net, [tf.reshape(net,[-1])],
-                    '\ninput to the CNN: ')
+      #net = tf.identity(net, name="cnn_input")
+      #print('\nCNN input: {}'.format(net))
+      #net = tf.Print(net, [net.shape],
+      #              '\ninput to the CNN: ')
+      net_shape = [val if val is not None else -1 for val in net.get_shape().as_list()]
+      net = tf.reshape(tf.py_func(store_inputs, [net], [tf.float32])[0],net_shape)
+
       for i in range(hparams.cnn_num_blocks):
         num_filters = int(hparams.cnn_initial_num_filters *
                           hparams.cnn_block_filter_factor**i)
-        print('\n----- Convolution block {} -----'.format(i+1))
-        print('number of filters for block_{}: {}'.format(i+1, num_filters))
-        with tf.variable_scope("block_%d" % (i + 1)):
+        #print('\n----- Convolution block {} -----'.format(i+1))
+        #print('number of filters for block_{}: {}'.format(i+1, num_filters))
+        with tf.variable_scope("block_%d" % (i + 1), reuse=tf.AUTO_REUSE):
           for j in range(hparams.cnn_block_size):
             net = tf.layers.conv1d(
                 inputs=net,
@@ -113,33 +163,37 @@ class AstroCNNModel(astro_model.AstroModel):
                 padding=hparams.convolution_padding,
                 activation=tf.nn.relu,
                 name="conv_%d" % (j + 1))
-            print('CNN 1D layer{}: {}'.format(j+1, net))
-            net = tf.Print(net, [net[0,:,0].shape, net[0,:,0]],
-                    '\nCNN 1D layer{} values: '.format(j+1))
-            """plt.figure(figsize=(12, 6), dpi=80)    
-            plt.scatter(range(201),net[0,:,0], s=0.5)
-            plt.title('After first conv1d')
-            plt.xlabel('Time(days)')
-            plt.ylabel('Brightness')
-            plt.show()"""
-
+            
+            net_shape = [val if val is not None else -1 for val in net.get_shape().as_list()]
+            if j==0:
+              net = tf.reshape(tf.py_func(store_conv_block1_output, [net], [tf.float32])[0],net_shape)
+            elif j==1:
+              net = tf.reshape(tf.py_func(store_conv_block2_output, [net], [tf.float32])[0],net_shape)
+            #print('CNN 1D layer{}: {}'.format(j+1, net))
+            #net = tf.Print(net, [net[0,:,0].shape, net[0,:,0]],
+            #        '\nCNN 1D layer{} values: '.format(j+1))
+            
           if hparams.pool_size > 1:  # pool_size 0 or 1 denotes no pooling
             net = tf.layers.max_pooling1d(
                 inputs=net,
                 pool_size=int(hparams.pool_size),
                 strides=int(hparams.pool_strides),
                 name="pool")
-            print('max pooling{}: {}'.format(j+1, net))
+            #print('max pooling{}: {}'.format(j+1, net))
+            net_shape = [val if val is not None else -1 for val in net.get_shape().as_list()]
+            net = tf.reshape(tf.py_func(store_pooling_output, [net], [tf.float32])[0],net_shape)
 
       # Flatten.
       net.get_shape().assert_has_rank(3)
       net_shape = net.get_shape().as_list()
       output_dim = net_shape[1] * net_shape[2]
       net = tf.reshape(net, [-1, output_dim], name="flatten")
-      print('\nCNN output layer: {}'.format(net))
-      net = tf.Print(net, [net],
-                    '\nOutput of convolution block{} = '.format(i+1),
-                    name='conv_out{}'.format(i+1))
+      #print('\nCNN output layer: {}'.format(net))
+      #net = tf.Print(net, [net],
+      #              '\nOutput of convolution block{} = '.format(i+1),
+      #              name='conv_out{}'.format(i+1))    
+      net_shape = [val if val is not None else -1 for val in net.get_shape().as_list()]
+      net = tf.reshape(tf.py_func(store_flattened_output, [net], [tf.float32])[0],net_shape)
 
     return net
 
