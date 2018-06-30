@@ -24,7 +24,7 @@ print('flatened output shape:', flat2.shape)
 
 
 """ plot input data """
-plt.plot(inputs)
+plt.scatter(range(201),inputs)
 plt.show()
 
 """ plot output of first block in first convolutional layer 
@@ -42,7 +42,7 @@ fig, axs = plt.subplots(4,4, figsize=(15, 6), facecolor='w', edgecolor='k')
 fig.subplots_adjust(hspace=.5, wspace=.001)
 axs = axs.ravel()
 for i in range(pool1.shape[1]):
-  axs[i].plot(pool1[:,i])
+  axs[i].scatter(range(pool1.shape[0]),pool1[:,i],s=0.2)
   axs[i].set_title('filter '+str(i+1))
 plt.show()
 
@@ -64,11 +64,11 @@ fig, axs = plt.subplots(4,8, figsize=(15, 6), facecolor='w', edgecolor='k')
 fig.subplots_adjust(hspace=.5, wspace=.001)
 axs = axs.ravel()
 for i in range(pool2.shape[1]):
-  axs[i].plot(pool2[:,i])
+  axs[i].scatter(range(pool2.shape[0]),pool2[:,i])
   axs[i].set_title('filter '+str(i+1))
 plt.show()
 
-plt.plot(flat2)
+plt.scatter(range(1472),flat2)
 plt.show()
 
 
