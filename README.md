@@ -10,4 +10,10 @@ Since Kepler telescope took photos in quartals, after each quartal cameras were 
 
 ## Examples
 
-### 
+To see our model performances while trained it, you can just
+```
+tensorboard --logdir path/to/exo_NN/astronet/astronet/exo_nn_model
+```
+ 
+
+
