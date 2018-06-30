@@ -7,12 +7,12 @@ SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 export PYTHONPATH=${SCRIPTPATH}/../astronet
 
 HOME=${SCRIPTPATH}/..
-# model and eval files locations.
+# model and tfrecord files locations.
 MODEL_DIR=${HOME}/astronet/astronet/$1
 TFRECORD_DIR=${MODEL_DIR}/../$2
 
 # run the evaluation script.
-python ../astronet/astronet/evaluate.py \
+python astronet/astronet/evaluate.py \
   --model=AstroCNNModel \
   --config_name=local \
   --eval_files=${TFRECORD_DIR}/test* \
