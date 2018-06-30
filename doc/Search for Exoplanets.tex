@@ -74,7 +74,6 @@ With the launch of Kepler space observatory in March 2009, the search for exopla
 
 
 %----------------------------------------------------------------------------------------
-
 \begin{document}
 
 % Print the title and table of contents
@@ -107,12 +106,12 @@ The most effective method today is the \textit{transit photometry}. When a plane
 
 %------------------------------------------------
 \section{Data}
-Data used for this project is obtained by combining NASA Exoplanet Archive data for Threshold-Crossing Events which (currently) consists of $34032$ documented TCEs, each having $-CHECKNUMBER-$ column features and raw Kepler light-curves (star's flux (brightness) over time) at Mikulski Archive for Space Telescopes consisting of over $2000000 -CHECKNUMBER-$ star lightcurves monitored by Kepler.
+Data used for this project is obtained by combining NASA Exoplanet Archive data for Threshold-Crossing Events which (currently) consists of $34032$ documented TCEs, each having $-CHECKNUMBER-$ column features and raw Kepler light-curves (star's flux (brightness) over time) at Mikulski Archive for Space Telescopes consisting of over $2000000 -CHECKNUMBER-$ star light-curves monitored by Kepler.
 
-Most important TCE features for our projects are \code{kepid}, \code{tce\_period}, \code{tce\_time0bk}, \code{tce\_duration} and \code{av\_training\_set} which (respectively) correspond to the Kepler identifier of host star, period of the event, time of the first appearance (more precisely; time of the begining of drop $+$ \code{tce\_duration}$/2$), duration of the event (drop in star's brightness) and label from set $\{PC,NTP,AFP,UNK\}$ meaning planet candidate, non-transit phenomena, astrophisical false positive and unknown. Those features will enable as to download just the Kepler light-curves of interest and later on to process each light-curve to extract and amplify features of TCE.
+Most important TCE features for our projects are \code{kepid}, \code{tce\_period}, \code{tce\_time0bk}, \code{tce\_duration} and \code{av\_training\_set} which (respectively) correspond to the Kepler identifier of host star, period of the event, time of the first appearance (more precisely; time of the beginning of drop $+$ \code{tce\_duration}$/2$), duration of the event (drop in star's brightness) and label from set $\{PC,NTP,AFP,UNK\}$ meaning planet candidate, non-transit phenomena, astrophysical false positive and unknown. Those features will enable us to download just the Kepler light-curves of interest and later on to process each light-curve to extract and amplify features of TCE.
 
 \subsection{Creating Dataset}
-At the time of collecting our data, an older version of a TCE table was available with around $20000 --GETCORRECT-$ labeled TCEs. Distribution of \code{av\_training\_set} labels is as follows:
+At the time of our data collecting, and older version of a TCE table was available with around $20000 --GETCORRECT-$ labeled TCEs. Distribution of \code{av\_training\_set} labels is as follows:
 \begin{itemize}
 	\item -NUMBER- TCEs with label PC (planet candidate)
     \item -NUMBER- TCEs with label NTP (non-transit phenomena)
@@ -123,17 +122,17 @@ We used that table, specifically \code{kepid} colum to download just the light-c
 
 Still, our machines are not fully prepared to tackle the preprocessing and learning from such a vast amount of not at all simple data, so we decided to choose randomly just some of the TCEs from table. We ended up selecting $1058$ TCEs labeled as planet candidate, $471$ TCEs labeled as astrophisical false positive and $734$ TCEs labeled as non transit phenomena.
 
-As an example, here is a small table of selected features of one TCE documented for a star with \code{kepid} $9517393$:
+As an example, here is a small table of selected features of one TCE documented for a star with \code{kepid} $5088591$:
 \begin{center}
   \begin{tabular}{||c | c||} 
     \hline
-    kepid & 9517393 \\
+    kepid & 5088591 \\
     \hline
-    tce\_period & 219.322 \\
+    tce\_period & 14.5324 \\
     \hline
-    tce\_time0bk & 320.728 \\
+    tce\_time0bk & 140.725 \\
     \hline
-    tce\_duration & 0.5125000000000001 \\
+    tce\_duration & 0.13358333333333333 \\
     \hline
     av\_training\_set & PC \\
     \hline
@@ -141,44 +140,44 @@ As an example, here is a small table of selected features of one TCE documented 
     \hline
     tce\_plnt\_num & 1 \\
     \hline
-    tce\_eqt & 313.0 \\
+    tce\_eqt & 665.0 \\
     \hline
     \ldots & \ldots
   \end{tabular}
 \end{center}
 
 \subsection{Preprocessing Lightcurves}
-In order to feed our model, we first need to process the raw light-curve into more useful and compact form. Raw light-curve is loaded as an array of smaller arrays called quarters which represent distinct periods in Kelper telescope's configuration, position, etc. We thus might expect quarters to be on a slightly different scale. In figure~\ref{fig:raw_lc} we show lightcurve for \code{kepid} $9517393$ right after loading \code{time} and \code{flux} arrays.
+In order to feed our model, we first need to process the raw light-curve into more useful and compact form. Raw light-curve is loaded as an array of smaller arrays called quarters which represent distinct periods in Kelper telescope's configuration, position, etc. We thus might expect quarters to be on a slightly different scale. In figure~\ref{fig:raw_lc} we show lightcurve for \code{kepid} $5088591$ right after loading \code{time} and \code{flux} arrays, as well as after dividing them by median quarter values.  
 \begin{figure}[H]
-\includegraphics[width=0.5\textwidth]{rawLC-9517393}
+\includegraphics[width=0.5\textwidth]{raw_lc}
 \caption{Raw light-curve data}
 \label{fig:raw_lc}
 \end{figure}
 
-It is easy to see that almost every star has an unpredictable variation in its flux, so the data is pretty distorted and irregular which is something that is to be avoided because it would interfere with our model's conclusions and feature extraction. Thus, we calculate a B-spline over the entire light-curve data, ignoring points that cannot be fitted or are of type \code{None}. This spline can be seen in figure!\ref{fig:raw_spline_lc} colored black.
+It is easy to see that almost every star has an unpredictable variation in its flux, so the data is pretty distorted and irregular which is something that is to be avoided because it would interfere with our model's conclusions and feature extraction. Thus, we calculate a B-spline over the entire light-curve data, ignoring points that cannot be fitted or are of type \code{None}. This spline can be seen in figure!\ref{fig:raw_spline_lc} colored red.
 \begin{figure}[H]
-\includegraphics[width=0.5\textwidth]{splineLC-9517393}
+\includegraphics[width=0.5\textwidth]{raw_lc}
 \caption{Raw light-curve data with fitted B-spline}
 \label{fig:raw_spline_lc}
 \end{figure}
 
 Next, we divide light-curve by the spline to obtain~\ref{fig:divided_lc}. Notice how specific TCEs can now be seen without even enlarging. 
 \begin{figure}[H]
-\includegraphics[width=0.5\textwidth]{divsplineLC-9517393}
+\includegraphics[width=0.5\textwidth]{divided_lc}
 \caption{Raw light-curve data divided by spline}
 \label{fig:divided_lc}
 \end{figure}
 
 Now we need to exactly find the position of desired TCE which we know from TCE table, column \code{tce\_time0bk}. Focusing just on that segment of this plot, we get figure~\ref{fig:enlarged_tce}
 \begin{figure}[H]
-\includegraphics[width=0.5\textwidth]{splinezoomLC-9517393}
+\includegraphics[width=0.5\textwidth]{enlarged_tce}
 \caption{Enlarged area of the TCE}
 \label{fig:enlarged_tce}
 \end{figure}
 
 We see that the amount of useful data of this "drop" is very poor, but we must remember that those events are periodic by definition so we hope that there is more instances of that same "planet" crossing during the lifetime of Kepler. We find the \code{tce\_period} from TCE table and fold every drop separated by \code{tce\_period} to \code{time0bk}. Now we divide TCE's duration into $201$ discrete points and calculate median value for flux in each of $200$ intervals in between. This results in a much richer, and uniform for all events, representation of a TCE which can be seen in!\ref{fig:folded_tce}. We call that view a "local view" and it is going to be the input of our model.
 \begin{figure}[H]
-\includegraphics[width=0.5\textwidth]{localvierLCdrop-9517393}
+\includegraphics[width=0.5\textwidth]{folded_tce}
 \caption{Folded local view of the TCE}
 \label{fig:folded_tce}
 \end{figure}
@@ -197,16 +196,16 @@ A convolutional neural network (CNN) can be viewed as a deep neural network with
 In previous figure, we have a CNN that is used for classifying 2D data (generally, images are third order tensors, but we can assume image to be grayscale). Our data is not two-dimensional so we will be using 1D convolution with ReLu function as activation and maximum pooling, each of which will be explained in the following subsections, specifically as they were in out project.
 
 \subsection{Convolutional Layer}
-A convolutional layer consists of neurons that are not fully connected, that is --- each neurons in this layer is connect to just the small portion of the input. The convolution layer’s parameters consist of a set of learnable filters. During the forward pass, we slide (more precisely, convolve) each filter across the input and compute dot products between the entries of the filter and the input at any position. As we slide the filter over the the input, we will produce a $1$-dimensional activation map that gives the responses of that filter at every position. Furthermore, we can stack multiple convolutional layers before pooling their output.
+A convolutional layer consists of neurons that are not fully connected, that is --- each neurons in this layer is connect to just the small portion of the input. The convolution layer’s parameters consist of a set of learnable filters. During the forward pass, we slide (more precisely, convolve) each filter across the input and compute dot products between the entries of the filter and the input at any position. As we slide the filter over the the input, we will produce a $1$-dimensional activation map that gives the responses of that filter at every position. Furthermore, we can stack multiple convolutional layers before pooling their output. One thing to notice here is that there are two options in doing the described procedure; with padding the input and without padding it, meaning that with padding we add zero values to the left or right of the input so the convolution step on the first/last few inputs in the input array will be valid (there will be enough inputs on each side to do the dot product). We use padding, thus are able to obtain same-size output after the convolution. The convolutional kernel size we use is $5$.
 
 We have a set of $16$ filters in first convolution block and each of them will produce a separate $1$-dimensional activation map. We stack these activation maps along the depth dimension and produce the output. So, for out input representation --- arrays of length $201$ (shape $(?,201)$, where question mark is batch size during training and $1$ during prediction), the output of convolution layer will be of shape $(?,201,16)$. We then feed this data into another convolutional layer with a set of $16$ filters yielding as outputs tensors of shape $(?,201,16)$.
 
-Also, there are $32$ filter in the second convolutional block taking as input the output of pooling the outputs of the first convolutional block. The output of this second convolutional layer is the set of features our convolutional blocks have learned and it is the reduced with maximum pooling, flattened to shape $(?,1472) $and passed to fully connected layers for classification.
+Also, there are $32$ filter in the second convolutional block taking as input the output of pooling the outputs of the first convolutional block. The output of this second convolutional layer is the set of features our convolutional blocks have learned and it is then reduced more with maximum pooling, flattened to shape $(?,1472) $and passed to fully connected layers for classification.
 
 \subsection{Rectified Linear Unit}
 For our activation function, we used rectified linear unit (ReLu). It is applied to the dot product of filter and current area the neuron is "looking" at, to produce an output value. One other valid choice for this task would be the sigmoid, but it would not stress enough the importance of larger values.
 
-To be specific, when our network is trained for $1000$ steps with sigmoid activation function, it only manages to get accuracy of $0.5265$ while with ReLu it goes to $0.9336$ in the same number of steps. Furthermore, it has $0$ true positives in the confusion matrix and we present why exactly that is so in the next figure.
+To be specific, when our network is trained for $1000$ steps with sigmoid activation function, it only manages to get accuracy of $0.5265$ while with ReLu it goes to $0.9735$ in the same number of steps. Furthermore, sigmoid model has $0$ true positives in the confusion matrix and we present why exactly that is so in the next figure.
 \begin{figure}[H]
 \includegraphics[width=0.5\textwidth]{sigmoid_pooling2}
 \caption{Output of 32 filters after last pooling before FC (using sigmoid activations)}
@@ -216,7 +215,7 @@ To be specific, when our network is trained for $1000$ steps with sigmoid activa
 As we can see in figure~\ref{fig:sigmoid-pool2}, almost no features are detected and therefore almost every example will be classified as non-transiting phenomena. Notice how vertical scale is pretty much the same and this is because of pretty much the same outputs from sigmoid. We also present the same picture for ReLu.
 \begin{figure}[H]
 \includegraphics[width=0.5\textwidth]{relu_pooling2}
-\caption{Output of 32 filters after last pooling before FC (using ReLu activations)}
+\caption{CHANGE IT Output of 32 filters after last pooling before FC (using ReLu activations)}
 \label{fig:relu-pool2}
 \end{figure}
 
@@ -232,15 +231,32 @@ Lastly, the computations of fully connected layers are sumarized in a single out
 
 %-----------------------------------------------
 \section{Training}
-We train a convolutional neural network model on a randomly constructed set of data consisting of $1058$ planet candidates, $471$ astrophysical false positives and $734$ non-transiting phenomena.
-
---- TENSORFLOW IMAGES ---
-
---- CONFUSION MATRICES ---
+We train a convolutional neural network model on a randomly constructed set of data consisting of $1058$ planet candidates, $471$ astrophysical false positives and $734$ non-transiting phenomena, summing to $2263$ data examples. For this model (convolutional neural network described above), astrophysical false positives and non-transiting phenomena are both mapped to label $0$ and planet candidates are labeled $1$. 
 
 \subsection{Parameters}
+We shuffle the data and partition it into a training set consisting of $1810$ examples, a validation set of $226$ examples and a test set of $227$ examples. Training is done with batch size of $16$, in two main parts; first we train for $6000$ steps with learning rate $10^{-5}$, and then we try to fine tune the accuracy with learning rate $10^{-6}$ for another $1000$ steps. Optimization in both parts is done with Adam optimizer.
 
 \subsection{Progress}
+The training process for parameters described above can be most easily viewed through TensorBoard interface for visualizing computation graph and its execution. 
+\begin{figure}[H]
+\includegraphics[width=0.5\textwidth]{train-test_acc}
+\caption{Accuracy and Area Under Curve of our model during training and testing, viewed from TensorBoard}
+\label{fig:accuracy}
+\end{figure}
+
+The accuracy starts stagnating at around $0.9735$ and it seems like we can not get rid of some of the false predictions. View of the values of confusion matrix during training steps can be seen in figure~\ref{fig:confmat}.
+\begin{figure}[H]
+\includegraphics[width=0.5\textwidth]{train-test_cm}
+\caption{Confussion matrix values during training and testing}
+\label{fig:confmat}
+\end{figure}
+
+To conclude, after $7000$ steps we obtained an accuracy of $0.9734513$ with $220$ correctly classified examples in the validation set ($6$ wrongly; $2$ false negatives and $4$ false positives).
+
+\subsection{Testing}
+Testing results can also be seen in figures ~\ref{fig:accuracy} and ~\ref{fig:confmat} and are represented with a red dot. Explicitly, we obtained a $0.9295154$ accuracy on the training set with $211$ correctly classified examples ($16$ wrongly; $4$ false negatives and $12$ false positives).
+
+It is expected that there are more false positives because they are tricky to find even for professionals with specialized equipment.
 
 
 %----------------------------------------------
