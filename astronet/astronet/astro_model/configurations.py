@@ -60,10 +60,10 @@ def base():
           "pre_logits_dropout_rate": 0.0,
 
           # Number of examples per training batch.
-          "batch_size": 64,
+          "batch_size": 16,
 
           # Learning rate parameters.
-          "learning_rate": 1e-5,
+          "learning_rate": 1e-6,
           "learning_rate_decay_steps": 0,
           "learning_rate_decay_factor": 0,
           "learning_rate_decay_staircase": True,

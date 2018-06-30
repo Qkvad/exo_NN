@@ -95,14 +95,14 @@ class AstroCNNModel(astro_model.AstroModel):
       convolution padding type and pooling.
     """
     def store_inputs(x):
-      print('the input shape is:', x.shape)
+      #print('the input shape is:', x.shape)
       #print('  values:', x[0,:,0])
       np.save('/tmp/input', x[0,:,0])
       return x
 
     def store_conv_block1_output(x):
       layer_num = 1 if x.shape[1]==201 else 2
-      print('the conv{}_block1 output shape is: {}'.format(layer_num, x.shape))
+      #print('the conv{}_block1 output shape is: {}'.format(layer_num, x.shape))
       #print('  values:', x[0,:,:])
       if layer_num==1:
         np.save('/tmp/convl1b1', x[0,:,:])
@@ -112,7 +112,7 @@ class AstroCNNModel(astro_model.AstroModel):
 
     def store_conv_block2_output(x):
       layer_num = 1 if x.shape[1]==201 else 2
-      print('the conv{}_block2 output shape is: {}'.format(layer_num, x.shape))
+      #print('the conv{}_block2 output shape is: {}'.format(layer_num, x.shape))
       #print('  values:', x[0,:,:])
       if layer_num==1:
         np.save('/tmp/convl1b2', x[0,:,:])
@@ -122,7 +122,7 @@ class AstroCNNModel(astro_model.AstroModel):
 
     def store_pooling_output(x):
       block_num = 1 if x.shape[1]==98 else 2
-      print('the pooling{} output shape is: {}'.format(block_num, x.shape))
+      #print('the pooling{} output shape is: {}'.format(block_num, x.shape))
       #print('  values:', x[0,:,:])
       if block_num==1:
         np.save('/tmp/pool1', x[0,:,:])
@@ -132,7 +132,7 @@ class AstroCNNModel(astro_model.AstroModel):
 
     def store_flattened_output(x):
       block_num = 1 if x.shape[1]==98*16 else 2
-      print('the flattened{} output shape is: {}'.format(block_num, x.shape))
+      #print('the flattened{} output shape is: {}'.format(block_num, x.shape))
       #print('  values:', x[0,:,:])
       if block_num==1:
         np.save('/tmp/flat1', x[0,:])
