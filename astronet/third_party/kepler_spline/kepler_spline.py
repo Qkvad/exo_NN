@@ -9,11 +9,9 @@ import warnings
 import numpy as np
 from pydl.pydlutils import bspline
 
-#from third_party.robust_mean import robust_mean
+from third_party.robust_mean import robust_mean
 import sys
-# Add the ptdraft folder path to the sys.path list
-sys.path.append('/home/sandro/College2017.-2018./2.semestar/StrojnoUčenje/projekt/models/research/astronet/third_party/robust_mean')
-import robust_mean
+
 
 
 class SplineError(Exception):

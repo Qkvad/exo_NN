@@ -151,7 +151,7 @@ def _process_tce(feature_config):
     features["local_view"] = np.expand_dims(local_view, 0)
 
   plt.figure(figsize=(12, 6), dpi=80)    
-  plt.scatter(range(201),local_view, s=0.5)
+  plt.plot(range(201),local_view,'o')
   plt.title('Folded local view of target TCE')
   plt.xlabel('Time(days)')
   plt.ylabel('Brightness')
