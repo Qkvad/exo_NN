@@ -185,18 +185,58 @@ We see that the amount of useful data of this "drop" is very poor, but we must r
 
 %------------------------------------------------
 \section{Convolutional Neural Network}
+With the recent rise of neural networks, many variations are being explored for specific problems. In classification, convolutional neural networks have been proven to yield best results and we will be using one in this project.  Let's first briefly introduce the reader with the concept of convolutional neural networks and how exactly they differ from regular neural networks.
 
+A convolutional neural network (CNN) can be viewed as a deep neural network with addition of feature extraction mechanism in the from, that is --- before the classification with fully connected layers begin. Building block of convolutional neural network are convolutional layers with pooling and fully connected layers for classification. General scheme of one CNN with two layers of 2D convolutions can be seen in figure~\ref{fig:cnn}.
+\begin{figure}[H]
+\includegraphics[width=0.5\textwidth]{cnn}
+\caption{Scheme of a 2D CNN}
+\label{fig:cnn}
+\end{figure}
 
-\subsection{1D Convolution}
+In previous figure, we have a CNN that is used for classifying 2D data (generally, images are third order tensors, but we can assume image to be grayscale). Our data is not two-dimensional so we will be using 1D convolution with ReLu function as activation and maximum pooling, each of which will be explained in the following subsections, specifically as they were in out project.
 
-\subsection{ReLu}
+\subsection{Convolutional Layer}
+A convolutional layer consists of neurons that are not fully connected, that is --- each neurons in this layer is connect to just the small portion of the input. The convolution layer’s parameters consist of a set of learnable filters. During the forward pass, we slide (more precisely, convolve) each filter across the input and compute dot products between the entries of the filter and the input at any position. As we slide the filter over the the input, we will produce a $1$-dimensional activation map that gives the responses of that filter at every position. Furthermore, we can stack multiple convolutional layers before pooling their output.
 
-\subsection{Pooling}
+We have a set of $16$ filters in first convolution block and each of them will produce a separate $1$-dimensional activation map. We stack these activation maps along the depth dimension and produce the output. So, for out input representation --- arrays of length $201$ (shape $(?,201)$, where question mark is batch size during training and $1$ during prediction), the output of convolution layer will be of shape $(?,201,16)$. We then feed this data into another convolutional layer with a set of $16$ filters yielding as outputs tensors of shape $(?,201,16)$.
 
+Also, there are $32$ filter in the second convolutional block taking as input the output of pooling the outputs of the first convolutional block. The output of this second convolutional layer is the set of features our convolutional blocks have learned and it is the reduced with maximum pooling, flattened to shape $(?,1472) $and passed to fully connected layers for classification.
+
+\subsection{Rectified Linear Unit}
+For our activation function, we used rectified linear unit (ReLu). It is applied to the dot product of filter and current area the neuron is "looking" at, to produce an output value. One other valid choice for this task would be the sigmoid, but it would not stress enough the importance of larger values.
+
+To be specific, when our network is trained for $1000$ steps with sigmoid activation function, it only manages to get accuracy of $0.5265$ while with ReLu it goes to $0.9336$ in the same number of steps. Furthermore, it has $0$ true positives in the confusion matrix and we present why exactly that is so in the next figure.
+\begin{figure}[H]
+\includegraphics[width=0.5\textwidth]{sigmoid_pooling2}
+\caption{Output of 32 filters after last pooling before FC (using sigmoid activations)}
+\label{fig:sigmoid-pool2}
+\end{figure}
+
+As we can see in figure~\ref{fig:sigmoid-pool2}, almost no features are detected and therefore almost every example will be classified as non-transiting phenomena. Notice how vertical scale is pretty much the same and this is because of pretty much the same outputs from sigmoid. We also present the same picture for ReLu.
+\begin{figure}[H]
+\includegraphics[width=0.5\textwidth]{relu_pooling2}
+\caption{Output of 32 filters after last pooling before FC (using ReLu activations)}
+\label{fig:relu-pool2}
+\end{figure}
+
+\subsection{Max Pooling}
+Pooling is a method of downsizing the input data, but keeping the structure. It is used to abstract features obtained by convolutional layer into more complex features that then go further into neural network. We used max pooling with size $7$ and stride $2$ which lead to reducing the output size of the first convolutional block from $201$ to $98$ and output size from the second convolutional layer from $98$ to $46$. Max pooling is done almost like convolution, but we do not calculate the dot-product of "pool filter" of length $7$ with the part of the input of length $7$. Instead, we just take maximum value of $7$ input values we are looking at, slide $2$ steps, collect a maximum value again and so on.
+
+\subsection{Fully Connected}
+After our second convolutional block, we ended up with $32$ values of length $46$ which are now flattened to form a $1472$ inputs for network of $2$ fully connected layers with $1024$ neurons each. We also use ReLu as activation for those neurons.
+
+\subsection{Sigmoid Output}
+Lastly, the computations of fully connected layers are sumarized in a single output value representing the probability that a TCE is a planet candidate. Therefore, we use a sigmoid function as activation for this last neuron.
 
 
 %-----------------------------------------------
 \section{Training}
+We train a convolutional neural network model on a randomly constructed set of data consisting of $1058$ planet candidates, $471$ astrophysical false positives and $734$ non-transiting phenomena.
+
+--- TENSORFLOW IMAGES ---
+
+--- CONFUSION MATRICES ---
 
 \subsection{Parameters}
 
@@ -205,6 +245,13 @@ We see that the amount of useful data of this "drop" is very poor, but we must r
 
 %----------------------------------------------
 \section{Results}
+In this last section, we present some of the most interesting results we encountered during our journey of training and testing our exoplanet classifier/finder.
+
+We are proud to say that our model outperformed the initial creator's of astronet model at classifying the planet they discovered. While their model was "just" $0.9480018$ confident that it is a planet, our predicts it with certainty of $0,96??$. However, we are aware that this is most probably due to our limited training set, but we cannot be sure until we, hopefully soon, get our models going on a more powerful machine.
+
+\subsection{The weirdest}
+
+\subsection{The cleanest}
 
 
 %----------------------------------------------------------------------------------------
