@@ -12,9 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import sys
-sys.path.insert(0,'/home/sandro/College2017.-2018./2.semestar/StrojnoUčenje/projekt/exo_NN/astronet')
 
-from astronet.data import preprocess
 
 KEP_DIR = "data/kepler/" #"../test_data"
 KEP_ID   = 11442793

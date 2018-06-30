@@ -13,7 +13,7 @@ MODEL_DIR=${HOME}/astronet/astronet/$2
 TFRECORD_DIR=${MODEL_DIR}/../$1
 
 # run the training script.
-python ../astronet/astronet/train.py \
+python astronet/astronet/train.py \
   --model=AstroCNNModel \
   --config_name=local \
   --train_files=${TFRECORD_DIR}/train* \
