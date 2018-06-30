@@ -19,8 +19,10 @@ from sklearn.utils import shuffle
 np.random.seed(427)
 
 def reduce_table(pc_num, afp_num, ntp_num, output_csv):
-    df = pd.read_csv("../csv/dr24_tce.csv", index_col="rowid", comment="#")
-    df = df[df["kepid"] != 11442793]
+    df = pd.read_csv("data/csv/dr24_tce.csv", index_col="rowid", comment="#")
+    #df = df[df["kepid"] != 11442793]
+
+    print('df shape: ', df.shape)
 
     df_PC = df[df["av_training_set"] == "PC"]
     print("total PCs :", df_PC.shape[0])
@@ -28,6 +30,8 @@ def reduce_table(pc_num, afp_num, ntp_num, output_csv):
     print("total AFPs:", df_AFP.shape[0])
     df_NTP = df[df["av_training_set"] == "NTP"]
     print("total NTPs:", df_NTP.shape[0])
+    df_UNK = df[df["av_training_set"] == "UNK"]
+    print("total UNKs:", df_UNK.shape[0])
 
     '''# remove astrophisical false positives
     df = df[df["av_training_set"] != "AFP"]
@@ -67,7 +71,7 @@ def reduce_table(pc_num, afp_num, ntp_num, output_csv):
     print("astrophy. false positives : ", df_subset.loc[df_subset["av_training_set"] == "AFP"].shape[0])
     print("non-transiting phenomena  : ", df_subset.loc[df_subset["av_training_set"] == "NTP"].shape[0])
 
-    df_subset.to_csv("../csv/"+output_csv+".csv", sep=',')
+    df_subset.to_csv("data/csv/"+output_csv+".csv", sep=',')
 
 # argv parameters:
 #  - (int) argv[1]: number of PCs

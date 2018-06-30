@@ -32,6 +32,7 @@ import tce_io as tceio
 #  (int)  argv[5]: -p to show processed lightcurve, anything otherwise
 
 df = pd.read_csv("data/csv/dr24_tce.csv", index_col="rowid", comment="#")
+print('df shape: ', df.shape)
 
 proc = str(sys.argv[5])
 
@@ -59,7 +60,7 @@ else:
 			continue
 		print('= '+str(i)+' =')
 		kep_id = df_UNK.iloc[i]['kepid']
-		tce = tceio.read_tce("../csv/", kep_id)
+		tce = tceio.read_tce("data/csv/", kep_id)
 		tce.tce_duration/=24
 		print(tabulate(tce[['kepid','av_training_set','tce_period','tce_time0bk','tce_duration','tce_plnt_num','tce_ror','tce_dor','tce_depth','tce_eqt','tce_nkoi']].T, headers='keys', tablefmt='psql'))
 		if proc=='-p':
