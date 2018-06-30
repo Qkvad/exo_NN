@@ -112,7 +112,7 @@ Data used for this project is obtained by combining NASA Exoplanet Archive data 
 Most important TCE features for our projects are \code{kepid}, \code{tce\_period}, \code{tce\_time0bk}, \code{tce\_duration} and \code{av\_training\_set} which (respectively) correspond to the Kepler identifier of host star, period of the event, time of the first appearance (more precisely; time of the begining of drop $+$ \code{tce\_duration}$/2$), duration of the event (drop in star's brightness) and label from set $\{PC,NTP,AFP,UNK\}$ meaning planet candidate, non-transit phenomena, astrophisical false positive and unknown. Those features will enable as to download just the Kepler light-curves of interest and later on to process each light-curve to extract and amplify features of TCE.
 
 \subsection{Creating Dataset}
-At the time of our data collecting, and older version of a TCE table was available with around $20000 --GETCORRECT-$ labeled TCEs. Distribution of \code{av\_training\_set} labels is as follows:
+At the time of collecting our data, an older version of a TCE table was available with around $20000 --GETCORRECT-$ labeled TCEs. Distribution of \code{av\_training\_set} labels is as follows:
 \begin{itemize}
 	\item -NUMBER- TCEs with label PC (planet candidate)
     \item -NUMBER- TCEs with label NTP (non-transit phenomena)
@@ -123,17 +123,17 @@ We used that table, specifically \code{kepid} colum to download just the light-c
 
 Still, our machines are not fully prepared to tackle the preprocessing and learning from such a vast amount of not at all simple data, so we decided to choose randomly just some of the TCEs from table. We ended up selecting $1058$ TCEs labeled as planet candidate, $471$ TCEs labeled as astrophisical false positive and $734$ TCEs labeled as non transit phenomena.
 
-As an example, here is a small table of selected features of one TCE documented for a star with \code{kepid} $5088591$:
+As an example, here is a small table of selected features of one TCE documented for a star with \code{kepid} $9517393$:
 \begin{center}
   \begin{tabular}{||c | c||} 
     \hline
-    kepid & 5088591 \\
+    kepid & 9517393 \\
     \hline
-    tce\_period & 14.5324 \\
+    tce\_period & 219.322 \\
     \hline
-    tce\_time0bk & 140.725 \\
+    tce\_time0bk & 320.728 \\
     \hline
-    tce\_duration & 0.13358333333333333 \\
+    tce\_duration & 0.5125000000000001 \\
     \hline
     av\_training\_set & PC \\
     \hline
@@ -141,44 +141,44 @@ As an example, here is a small table of selected features of one TCE documented 
     \hline
     tce\_plnt\_num & 1 \\
     \hline
-    tce\_eqt & 665.0 \\
+    tce\_eqt & 313.0 \\
     \hline
     \ldots & \ldots
   \end{tabular}
 \end{center}
 
 \subsection{Preprocessing Lightcurves}
-In order to feed our model, we first need to process the raw light-curve into more useful and compact form. Raw light-curve is loaded as an array of smaller arrays called quarters which represent distinct periods in Kelper telescope's configuration, position, etc. We thus might expect quarters to be on a slightly different scale. In figure~\ref{fig:raw_lc} we show lightcurve for \code{kepid} $5088591$ right after loading \code{time} and \code{flux} arrays, as well as after dividing them by median quarter values.  
+In order to feed our model, we first need to process the raw light-curve into more useful and compact form. Raw light-curve is loaded as an array of smaller arrays called quarters which represent distinct periods in Kelper telescope's configuration, position, etc. We thus might expect quarters to be on a slightly different scale. In figure~\ref{fig:raw_lc} we show lightcurve for \code{kepid} $9517393$ right after loading \code{time} and \code{flux} arrays.
 \begin{figure}[H]
-\includegraphics[width=0.5\textwidth]{raw_lc}
+\includegraphics[width=0.5\textwidth]{rawLC-9517393}
 \caption{Raw light-curve data}
 \label{fig:raw_lc}
 \end{figure}
 
-It is easy to see that almost every star has an unpredictable variation in its flux, so the data is pretty distorted and irregular which is something that is to be avoided because it would interfere with our model's conclusions and feature extraction. Thus, we calculate a B-spline over the entire light-curve data, ignoring points that cannot be fitted or are of type \code{None}. This spline can be seen in figure!\ref{fig:raw_spline_lc} colored red.
+It is easy to see that almost every star has an unpredictable variation in its flux, so the data is pretty distorted and irregular which is something that is to be avoided because it would interfere with our model's conclusions and feature extraction. Thus, we calculate a B-spline over the entire light-curve data, ignoring points that cannot be fitted or are of type \code{None}. This spline can be seen in figure!\ref{fig:raw_spline_lc} colored black.
 \begin{figure}[H]
-\includegraphics[width=0.5\textwidth]{raw_lc}
+\includegraphics[width=0.5\textwidth]{splineLC-9517393}
 \caption{Raw light-curve data with fitted B-spline}
 \label{fig:raw_spline_lc}
 \end{figure}
 
 Next, we divide light-curve by the spline to obtain~\ref{fig:divided_lc}. Notice how specific TCEs can now be seen without even enlarging. 
 \begin{figure}[H]
-\includegraphics[width=0.5\textwidth]{divided_lc}
+\includegraphics[width=0.5\textwidth]{divsplineLC-9517393}
 \caption{Raw light-curve data divided by spline}
 \label{fig:divided_lc}
 \end{figure}
 
 Now we need to exactly find the position of desired TCE which we know from TCE table, column \code{tce\_time0bk}. Focusing just on that segment of this plot, we get figure~\ref{fig:enlarged_tce}
 \begin{figure}[H]
-\includegraphics[width=0.5\textwidth]{enlarged_tce}
+\includegraphics[width=0.5\textwidth]{splinezoomLC-9517393}
 \caption{Enlarged area of the TCE}
 \label{fig:enlarged_tce}
 \end{figure}
 
 We see that the amount of useful data of this "drop" is very poor, but we must remember that those events are periodic by definition so we hope that there is more instances of that same "planet" crossing during the lifetime of Kepler. We find the \code{tce\_period} from TCE table and fold every drop separated by \code{tce\_period} to \code{time0bk}. Now we divide TCE's duration into $201$ discrete points and calculate median value for flux in each of $200$ intervals in between. This results in a much richer, and uniform for all events, representation of a TCE which can be seen in!\ref{fig:folded_tce}. We call that view a "local view" and it is going to be the input of our model.
 \begin{figure}[H]
-\includegraphics[width=0.5\textwidth]{folded_tce}
+\includegraphics[width=0.5\textwidth]{localvierLCdrop-9517393}
 \caption{Folded local view of the TCE}
 \label{fig:folded_tce}
 \end{figure}
