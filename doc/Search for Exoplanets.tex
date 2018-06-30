@@ -194,6 +194,13 @@ A convolutional layer consists of neurons that are not fully connected, that is 
 
 We have a set of $16$ filters in first convolution block and each of them will produce a separate $1$-dimensional activation map. We stack these activation maps along the depth dimension and produce the output. So, for out input representation --- arrays of length $201$ (shape $(?,201)$, where question mark is batch size during training and $1$ during prediction), the output of convolution layer will be of shape $(?,201,16)$. We then feed this data into another convolutional layer with a set of $16$ filters yielding as outputs tensors of shape $(?,201,16)$.
 
+A visualization of what each of $16$ filters is doing with the input 1D array of data can be seen in gifure~\ref{fig:1d_conv} 
+\begin{figure}[H]
+\includegraphics[width=0.5\textwidth]{1d_conv}
+\caption{Visualization of 1D convolution}
+\label{fig:1d_conv}
+\end{figure}
+
 Also, there are $32$ filter in the second convolutional block taking as input the output of pooling the outputs of the first convolutional block. The output of this second convolutional layer is the set of features our convolutional blocks have learned and it is then reduced more with maximum pooling, flattened to shape $(?,1472) $and passed to fully connected layers for classification.
 
 \subsection{Rectified Linear Unit}
@@ -216,10 +223,24 @@ As we can see in figure~\ref{fig:sigmoid-pool2}, almost no features are detected
 \subsection{Max Pooling}
 Pooling is a method of downsizing the input data, but keeping the structure. It is used to abstract features obtained by convolutional layer into more complex features that then go further into neural network. We used max pooling with size $7$ and stride $2$ which lead to reducing the output size of the first convolutional block from $201$ to $98$ and output size from the second convolutional layer from $98$ to $46$. Max pooling is done almost like convolution, but we do not calculate the dot-product of "pool filter" of length $7$ with the part of the input of length $7$. Instead, we just take maximum value of $7$ input values we are looking at, slide $2$ steps, collect a maximum value again and so on.
 
+A visualization of what the max pooling is doing to the 1D array of input data can be seen in figure~\ref{fig:max_pooling}
+\begin{figure}[H]
+\includegraphics[width=0.5\textwidth]{max_pooling}
+\caption{Visualization of max pooling}
+\label{fig:max_pooling}
+\end{figure}
+
 \subsection{Fully Connected}
 After our second convolutional block, we ended up with $32$ values of length $46$ which are now flattened to form a $1472$ inputs for a network of $2$ fully connected layers with $1024$ neurons each. As activation function, we set ReLu.
 
 We also tried with $4$ layers with $512$ neurons in a layer (and many other combinations) which produced similar or worse accuracy.
+
+A visualization of our fully connected part of the convolutional neural network can be seen in figure~\ref{fig:cnn_fc}
+\begin{figure}[H]
+\includegraphics[width=0.5\textwidth]{cnn_fc}
+\caption{Visualization of our fully connected layers at the end of CNN}
+\label{fig:cnn_fc}
+\end{figure}
 
 \subsection{Sigmoid Output}
 Lastly, the computations of fully connected layers are sumarized in a single output value representing the probability that a TCE is a planet candidate. Therefore, we use a sigmoid function as activation for this last neuron.
